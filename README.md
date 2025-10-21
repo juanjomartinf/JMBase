@@ -1,2 +1,2 @@
 # JMBase
-Basic for Juanjo's proyects
+Base for Juanjo's projects
