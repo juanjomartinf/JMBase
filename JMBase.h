@@ -8,10 +8,11 @@
 #include "JMBaseWiFi.h"
 
 namespace JMBase {
-  void beginSerial(unsigned long baud = 115200);
-  void log(const String &msg);
-  float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
-  String millisToString(unsigned long ms);
+	extern String HostName;
+	
+	void setBase(unsigned long baudrate, String hostname);
+	void beginSerial(unsigned long baud);
+	void setHostName(String hn);
 }
 
 #endif
