@@ -6,6 +6,16 @@
 // Selección automática de la librería WiFi correcta según la placa
 #if defined(ARDUINO_ARCH_ESP32)
   #include <WiFi.h>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 #elif defined(ARDUINO_ARCH_ESP8266)
   #include <ESP8266WiFi.h>
 #else

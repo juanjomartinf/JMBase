@@ -1,7 +1,7 @@
 #include "JMBaseOTA.h"
 
-void JMBaseOTA::setupOTA(const char* host_name){
-  ArduinoOTA.setHostname(host_name);
+void JMBaseOTA::setupOTA(){
+  ArduinoOTA.setHostname(JMBase::HostName.c_str());
 
   ArduinoOTA.onStart([]() {
     String type;

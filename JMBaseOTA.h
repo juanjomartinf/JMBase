@@ -1,6 +1,7 @@
 #ifndef JMBaseOTA_h
 #define JMBaseOTA_h
 
+#include "JMBase.h"
 #include <Arduino.h>
 
 //Incluir cabeceras según la arquitectura
@@ -18,7 +19,7 @@
 #endif
 
 namespace JMBaseOTA {
-  void setupOTA(const char* host_name);
+  void setupOTA();
   void loopOTA();
 }
 
