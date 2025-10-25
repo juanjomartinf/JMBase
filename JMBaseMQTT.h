@@ -9,6 +9,7 @@
 	
 	namespace JMBaseMQTT {
 		extern String Topic;
+		extern String TopicSub;
 		
 		typedef void (*RecibirMensajeCallback)(const String &topic, const String &payload);
 		typedef void (*OnMQTTConnectCallback)();
