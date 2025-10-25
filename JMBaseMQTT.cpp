@@ -1,20 +1,13 @@
 #include "JMBaseMQTT.h"
 #include "JMBase.h"
 
-#if defined(ARDUINO_ARCH_ESP32)
-
-#elif defined(ARDUINO_ARCH_ESP8266)
-
-#else
-  #error "JMBaseWiFi solo es compatible con ESP32 o ESP8266"
-#endif
-
 WiFiClient wifiClient;
 PubSubClient mqttclient(wifiClient);
 
 const char* MQTTServer = "domotica2j.duckdns.org";
 
 String JMBaseMQTT::Topic = "";
+String JMBaseMQTT::TopicSub = "";
 
 #define TiempoMQTT        600  
 #define TiempoSignal       60
@@ -61,6 +54,7 @@ void JMBaseMQTT::setupMQTT(String topic, OnMQTTConnectCallback oc, RecibirMensaj
   mqttclient.setCallback(procesarMensaje);
 	
 	Topic = topic;
+	TopicSub = topic + "/_Set";
 }
 
 void JMBaseMQTT::pubMQTT(String topic, String mensaje){

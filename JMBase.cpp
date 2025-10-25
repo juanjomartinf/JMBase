@@ -2,6 +2,16 @@
 
 String JMBase::HostName = "";
 
+void JMBase::setBase(unsigned long baudrate){
+
+	beginSerial(baudrate);
+}
+
+void JMBase::setBase(String hostname){
+	
+	setHostName(hostname);
+}
+
 void JMBase::setBase(unsigned long baudrate, String hostname){
 
 	beginSerial(baudrate);
