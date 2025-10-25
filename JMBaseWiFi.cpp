@@ -8,17 +8,52 @@ void JMBaseWiFi::setupWiFi(){
 	wifiMulti.addAP("Villa_Pisin", "JKN_11deJulio");
 
 	WiFi.hostname(JMBase::HostName);
-	Serial.print("Connecting...");
+	Serial.print("[WiFi] Connecting...");
 	WiFi.mode(WIFI_STA);
 	while(wifiMulti.run() != WL_CONNECTED && millis() > 20000){
 		delay(500);
 		Serial.print(".");
 	}
-	Serial.println("");
-	Serial.print("WiFi connected. IP address: ");
-	Serial.println(WiFi.localIP());
-	Serial.println("[WiFi] Listo. Conexión satisfactoria...");
+	
+	if(WiFi.status() == WL_CONNECTED){
+		Serial.println("");
+		Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
+		Serial.println(WiFi.localIP());
+	}
+	else{
+		Serial.print("[WiFi] Error al conectar.");
+	}
 }
+
+void JMBaseWiFi::reconnect(){
+  WiFi.mode(WIFI_OFF);
+  delay(200);
+  WiFi.disconnect();
+	
+	Serial.println("[WiFi] WiFi is disconnected  **");
+	
+	wifiMulti.addAP("CASA2J", "Mibarbatiene3pelos!");
+	wifiMulti.addAP("Villa_Pisin", "JKN_11deJulio");
+
+	WiFi.hostname(JMBase::HostName);
+	Serial.print("[WiFi] Connecting...");
+	WiFi.mode(WIFI_STA);
+	unsigned long startAttempt = millis();
+	while (wifiMulti.run() != WL_CONNECTED && millis() - startAttempt < 10000) {
+		delay(500);
+		Serial.print(".");
+	}
+	
+	if(WiFi.status() == WL_CONNECTED){
+		Serial.println("");
+		Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
+		Serial.println(WiFi.localIP());
+	}
+	else{
+		Serial.print("[WiFi] Error al conectar.");
+	}
+}
+
   
 #elif defined(ARDUINO_ARCH_ESP8266)
   #include <ESP8266WiFi.h>
@@ -32,7 +67,7 @@ String JMBaseWiFi::PASSWORD = "JKN_11deJulio";
 
 void JMBaseWiFi::setupWiFi(){
   WiFi.hostname(JMBase::HostName);
-  Serial.print("Connecting...");
+  Serial.print("[WiFi] Connecting...");
   WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASSWORD);
   while(WiFi.status() != WL_CONNECTED && millis() < 20000) {
@@ -42,9 +77,8 @@ void JMBaseWiFi::setupWiFi(){
   //WiFi.setAutoReconnect(true);
   //WiFi.persistent(true);
 	Serial.println("");
-	Serial.print("WiFi connected. IP address: ");
+	Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
 	Serial.println(WiFi.localIP());
-	Serial.println("[WiFi] Listo. Conexión satisfactoria...");
 }
 	
 #else
