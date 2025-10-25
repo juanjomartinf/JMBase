@@ -2,7 +2,6 @@
 #define JMBase_h
 
 #include <Arduino.h>
-#include "JMBaseGPIO.h"
 #include "JMBaseMQTT.h"
 #include "JMBaseOTA.h"
 #include "JMBaseWiFi.h"

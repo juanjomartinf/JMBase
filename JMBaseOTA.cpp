@@ -11,34 +11,34 @@ void JMBaseOTA::setupOTA(){
       type = "filesystem";
     }
 
-    Serial.println("Start updating " + type);
+    Serial.println("[OTA] Start updating " + type);
   });
 
   ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
+    Serial.println("\n[OTA] End");
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    Serial.printf("[OTA] Progress: %u%%\r", (progress / (total / 100)));
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
+    Serial.printf("[OTA] Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
-      Serial.println("Auth Failed");
+      Serial.println("[OTA] Auth Failed");
     } else if (error == OTA_BEGIN_ERROR) {
-      Serial.println("Begin Failed");
+      Serial.println("[OTA] Begin Failed");
     } else if (error == OTA_CONNECT_ERROR) {
-      Serial.println("Connect Failed");
+      Serial.println("[OTA] Connect Failed");
     } else if (error == OTA_RECEIVE_ERROR) {
-      Serial.println("Receive Failed");
+      Serial.println("[OTA] Receive Failed");
     } else if (error == OTA_END_ERROR) {
-      Serial.println("End Failed");
+      Serial.println("[OTA] End Failed");
     }
   });
 
   ArduinoOTA.begin();
-  Serial.println("[OTA] Listo. Esperando actualizaciones...");
+  Serial.println("[OTA]  Listo. Esperando actualizaciones...");
 }
 
 void JMBaseOTA::loopOTA() {
