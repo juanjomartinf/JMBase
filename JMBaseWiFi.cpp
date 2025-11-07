@@ -16,7 +16,6 @@ void JMBaseWiFi::setupWiFi(){
 	}
 	
 	if(WiFi.status() == WL_CONNECTED){
-		Serial.println("");
 		Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
 		Serial.println(WiFi.localIP());
 	}
