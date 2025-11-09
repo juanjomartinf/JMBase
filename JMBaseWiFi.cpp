@@ -3,25 +3,30 @@
 #if defined(ARDUINO_ARCH_ESP32)
 WiFiMulti wifiMulti;
 
-void JMBaseWiFi::setupWiFi(){
-	wifiMulti.addAP("CASA2J", "Mibarbatiene3pelos!");
-	wifiMulti.addAP("Villa_Pisin", "JKN_11deJulio");
+void JMBaseWiFi::addNetwork(const char* ssid, const char* password) {
+	wifiMulti.addAP(ssid, password);
+}
 
-	WiFi.hostname(JMBase::HostName);
-	Serial.print("[WiFi] Connecting...");
+void JMBaseWiFi::setupWiFi(){
 	WiFi.mode(WIFI_STA);
-	while(wifiMulti.run() != WL_CONNECTED && millis() > 20000){
-		delay(500);
-		Serial.print(".");
-	}
+	WiFi.hostname(JMBase::HostName);
+  Serial.print("[WiFi] Connecting...");
+  wifiMulti.run();
+  while(WiFi.status() != WL_CONNECTED && millis() < 20000) {
+    delay(500);
+    Serial.print(".");
+  }
 	
-	if(WiFi.status() == WL_CONNECTED){
-		Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
-		Serial.println(WiFi.localIP());
-	}
-	else{
-		Serial.print("[WiFi] Error al conectar.");
-	}
+  if(WiFi.status() == WL_CONNECTED){
+    Serial.println("connected!");
+    Serial.print("[WiFi] SSID: ");
+    Serial.println(WiFi.SSID());
+    Serial.print("[WiFi] IP address: ");
+    Serial.println(WiFi.localIP());
+  }
+  else{
+    Serial.println("error to connect!");
+  }
 }
 
 void JMBaseWiFi::reconnect(){
@@ -29,28 +34,12 @@ void JMBaseWiFi::reconnect(){
   delay(200);
   WiFi.disconnect();
 	
-	Serial.println("[WiFi] WiFi is disconnected  **");
-	
-	wifiMulti.addAP("CASA2J", "Mibarbatiene3pelos!");
-	wifiMulti.addAP("Villa_Pisin", "JKN_11deJulio");
-
+	Serial.println("[WiFi] WiFi disconnected!");
 	WiFi.hostname(JMBase::HostName);
-	Serial.print("[WiFi] Connecting...");
+	Serial.print("[WiFi] Reconnecting... ");
 	WiFi.mode(WIFI_STA);
-	unsigned long startAttempt = millis();
-	while (wifiMulti.run() != WL_CONNECTED && millis() - startAttempt < 10000) {
-		delay(500);
-		Serial.print(".");
-	}
-	
-	if(WiFi.status() == WL_CONNECTED){
-		Serial.println("");
-		Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
-		Serial.println(WiFi.localIP());
-	}
-	else{
-		Serial.print("[WiFi] Error al conectar.");
-	}
+	wifiMulti.run();
+	delay(100);
 }
 
   
@@ -60,24 +49,29 @@ void JMBaseWiFi::reconnect(){
 //String JMBaseWiFi::SSID = "CASA2J";
 //String JMBaseWiFi::PASSWORD = "Mibarbatiene3pelos!";
 
-String JMBaseWiFi::SSID = "Villa_Pisin";
-String JMBaseWiFi::PASSWORD = "JKN_11deJulio";
+//String JMBaseWiFi::SSID = "Villa_Pisin";
+//String JMBaseWiFi::PASSWORD = "JKN_11deJulio";
 
 
 void JMBaseWiFi::setupWiFi(){
+	WiFi.mode(WIFI_STA);
   WiFi.hostname(JMBase::HostName);
   Serial.print("[WiFi] Connecting...");
-  WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASSWORD);
   while(WiFi.status() != WL_CONNECTED && millis() < 20000) {
     Serial.print(".");
     delay(500);
   }
-  //WiFi.setAutoReconnect(true);
-  //WiFi.persistent(true);
-	Serial.println("");
-	Serial.print("[WiFi] Listo. Conexión satisfactoria. IP address: ");
-	Serial.println(WiFi.localIP());
+	if(WiFi.status() == WL_CONNECTED){
+		Serial.println("connected!");
+		Serial.print("[WiFi] SSID: ");
+		Serial.println(WiFi.SSID());
+		Serial.print("[WiFi] IP address: ");
+		Serial.println(WiFi.localIP());
+	}
+	else{
+		Serial.println("Error to connect!");
+	}
 }
 	
 #else

@@ -8,17 +8,21 @@
 	#include <PubSubClient.h>
 	
 	namespace JMBaseMQTT {
+		extern String user_MQTT;
+		extern String pass_MQTT;
+		extern String server_MQTT;
 		extern String Topic;
 		extern String TopicSub;
 		
-		typedef void (*RecibirMensajeCallback)(const String &topic, const String &payload);
-		typedef void (*OnMQTTConnectCallback)();
+		typedef void (*OnReceiveMessage_CallBack)(const String &topic, const String &payload);
+		typedef void (*pubSubProject_Callback)();
 	
 		// 3️.Función interna que invoca al callback (la llamará tu código MQTT)
-		void procesarMensaje(char* topic, byte* payload, unsigned int length);
+		void callBack(char* topic, byte* payload, unsigned int length);
 		
 		// --- tus funciones ya existentes ---
-		void setupMQTT(String topic, void (*callbackConectar)(), void (*callbackMensaje)(const String&, const String&));
+		void setupMQTT(String user_mqtt, String pass_mqtt, String server_mqtt, String topic);
+		void setCallBacks(void (*callbackConectar)(), void (*callbackMensaje)(const String&, const String&));
 		void pubMQTT(String topic, String mensaje);
 		void subMQTT(String topic);
 		void loopTimerWiFi();
