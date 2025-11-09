@@ -8,10 +8,18 @@
 #if defined(ARDUINO_ARCH_ESP32)
   #include <WiFiMulti.h>
 	namespace JMBaseWiFi {
-		//extern String HostName;
+		void addNetwork(const char* ssid, const char* password);
 		void setupWiFi();
 		void reconnect();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 #elif defined(ARDUINO_ARCH_ESP8266)
   #include <ESP8266WiFi.h>
 	

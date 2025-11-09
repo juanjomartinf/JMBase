@@ -9,11 +9,13 @@
 namespace JMBase {
 	extern String HostName;
 	
-	void setBase(unsigned long baudrate);
 	void setBase(String hostname);
+	void setBase(unsigned long baudrate);
 	void setBase(unsigned long baudrate, String hostname);
-	void beginSerial(unsigned long baud);
+	
 	void setHostName(String hn);
+	void beginSerial(unsigned long baud);
+	void setLED(bool est);
 }
 
 #endif
