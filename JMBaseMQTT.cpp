@@ -110,7 +110,7 @@ void JMBaseMQTT::loopMQTT(){
 			JMBase::setLED(false);
       if(timerMQTT == 0){
         Serial.print("[MQTT] Connecting...");
-        if(mqttclient.connect(JMBase::HostName.c_str(), user_MQTT.c_str(), pass_MQTT.c_str(), String("/_Debug/Status").c_str(), 2, true, "Offline")){
+        if(mqttclient.connect(JMBase::HostName.c_str(), user_MQTT.c_str(), pass_MQTT.c_str(), String(Topic + "/_Debug/Status").c_str(), 2, true, "Offline")){
 					Serial.print("connected to ");
 					Serial.println(server_MQTT);
           JMBase::setLED(true);
@@ -125,7 +125,7 @@ void JMBaseMQTT::loopMQTT(){
           if(pubSub_Project){ 
 						pubSub_Project();
 					}
-					Serial.println("[MQTT] Ready. Subscriptions and publications made.");
+					Serial.println("[MQTT] Ready. Subscriptions and publications are made.");
         }
         else{
 					JMBase::setLED(false);
