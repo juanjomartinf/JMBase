@@ -5,6 +5,15 @@
 // Selección automática de la librería WiFi correcta según la placa
 #if defined(ARDUINO_ARCH_ESP32)
   #include "WiFiClient.h"
+	#include <HTTPClient.h>
+	#include <HTTPUpdate.h>
+#elif defined(ARDUINO_ARCH_ESP8266)
+  #include <ESP8266WiFi.h>	
+#else
+  #error "JMBaseMQTT solo es compatible con ESP32 o ESP8266"
+#endif	
+	
+	
 	#include <PubSubClient.h>
 	
 	namespace JMBaseMQTT {
@@ -27,25 +36,7 @@
 		void subMQTT(String topic);
 		void loopTimerWiFi();
 		void loopMQTT();
-		
-		void pubMQTT(String topic, String mensaje);
-		void subMQTT(String topic);
-		
+		void HTTP_OTA(const String& url);
 	}
-	
-	
-#elif defined(ARDUINO_ARCH_ESP8266)
-  #include <ESP8266WiFi.h>
-	#include <PubSubClient.h>
-	
-	
-#else
-  #error "JMBaseMQTT solo es compatible con ESP32 o ESP8266"
-#endif
-
-
-
-
 
 #endif
-

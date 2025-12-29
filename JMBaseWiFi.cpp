@@ -1,7 +1,14 @@
 #include "JMBaseWiFi.h"
 
+// Selección automática de la librería WiFi correcta según la placa
 #if defined(ARDUINO_ARCH_ESP32)
 WiFiMulti wifiMulti;
+#elif defined(ARDUINO_ARCH_ESP8266)
+ESP8266WiFiMulti wifiMulti;
+#else
+  #error "JMBaseWiFi solo es compatible con ESP32 o ESP8266"
+#endif
+
 
 void JMBaseWiFi::addNetwork(const char* ssid, const char* password) {
 	wifiMulti.addAP(ssid, password);
@@ -41,40 +48,3 @@ void JMBaseWiFi::reconnect(){
 	wifiMulti.run();
 	delay(100);
 }
-
-  
-#elif defined(ARDUINO_ARCH_ESP8266)
-  #include <ESP8266WiFi.h>
-	
-//String JMBaseWiFi::SSID = "CASA2J";
-//String JMBaseWiFi::PASSWORD = "Mibarbatiene3pelos!";
-
-//String JMBaseWiFi::SSID = "Villa_Pisin";
-//String JMBaseWiFi::PASSWORD = "JKN_11deJulio";
-
-
-void JMBaseWiFi::setupWiFi(){
-	WiFi.mode(WIFI_STA);
-  WiFi.hostname(JMBase::HostName);
-  Serial.print("[WiFi] Connecting...");
-	WiFi.begin(SSID, PASSWORD);
-  while(WiFi.status() != WL_CONNECTED && millis() < 20000) {
-    Serial.print(".");
-    delay(500);
-  }
-	if(WiFi.status() == WL_CONNECTED){
-		Serial.println("connected!");
-		Serial.print("[WiFi] SSID: ");
-		Serial.println(WiFi.SSID());
-		Serial.print("[WiFi] IP address: ");
-		Serial.println(WiFi.localIP());
-	}
-	else{
-		Serial.println("Error to connect!");
-	}
-}
-	
-#else
-  #error "JMBaseWiFi solo es compatible con ESP32 o ESP8266"
-#endif
-

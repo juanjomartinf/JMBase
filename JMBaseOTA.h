@@ -4,23 +4,21 @@
 #include "JMBase.h"
 #include <Arduino.h>
 
-//Incluir cabeceras según la arquitectura
 
+// Selección automática de la librería WiFi correcta según la placa
 #if defined(ARDUINO_ARCH_ESP32)
   #include <ESPmDNS.h>
-  #include <WiFiUdp.h>
-  #include <ArduinoOTA.h>
 #elif defined(ARDUINO_ARCH_ESP8266)
-  #include <ESP8266mDNS.h>
-  #include <WiFiUdp.h>
-  #include <ArduinoOTA.h>
+  #include <ESP8266mDNS.h>	
 #else
   #error "Esta librería solo es compatible con ESP32 o ESP8266"
-#endif
-
-namespace JMBaseOTA {
-  void setupOTA();
-  void loopOTA();
-}
+#endif	
+	
+  #include <WiFiUdp.h>
+  #include <ArduinoOTA.h>
+	namespace JMBaseOTA {
+		void setupOTA();
+		void loopOTA();
+	}
 
 #endif
