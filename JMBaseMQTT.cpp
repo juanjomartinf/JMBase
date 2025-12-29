@@ -1,7 +1,7 @@
 #include "JMBaseMQTT.h"
 #include "JMBase.h"
 
-/******************************************** Timer MQTT ***************************************************/
+/******************************************** Timer MQTT **************************************************/
 #define TiempoMQTT        10  
 #define TiempoSignal       60
 
@@ -13,9 +13,7 @@ void JMBaseMQTT::loopTimerWiFi(){
   if(millis() - TIEMPO_WIFI >= 1000) {
     if(timerMQTT > 0){
       timerMQTT--;
-			#ifdef PrintTimerMQTT
-			Serial.print("[WiFi] Reconnecting in ... "); Serial.println(timerMQTT);
-			#endif
+			//Serial.print("[WiFi] Reconnecting in ... "); Serial.println(timerMQTT);
     }
 
     if(timerSignal > 0){
@@ -52,9 +50,9 @@ void JMBaseMQTT::pubMQTT(String topic, String mensaje){
 }
 
 void JMBaseMQTT::subMQTT(String topic){
-  char top[50];
-  topic.toCharArray(top, 50);
-  mqttclient.subscribe(top);
+  //char top[50];
+  //topic.toCharArray(top, 50);
+  mqttclient.subscribe((Topic + "/" + topic).c_str());
 }
 
 void JMBaseMQTT::callBack(char* topic, byte* payload, unsigned int length) {
@@ -64,13 +62,25 @@ void JMBaseMQTT::callBack(char* topic, byte* payload, unsigned int length) {
   }
   //Serial.print("REC ");Serial.print(topic);Serial.print(" = ");Serial.println(mensaje);
 	
-	if(String(topic) == Topic + "/_Debug"){
+	if(String(topic).endsWith("/_Debug")){
     if(mensaje == "TIME"){
-      JMBaseMQTT::pubMQTT("_Debug/Time", String(millis()/1000));
+      pubMQTT("_Debug/Time", String(millis()/1000));
     }
     else if(mensaje == "RESET"){
       ESP.restart();
     }
+		else if(mensaje.startsWith("UPDATE:")){
+    String msg = mensaje.substring(mensaje.indexOf(":")+1, mensaje.length());
+    Serial.println(String("[HTTP_OTA] ") + topic + " => " + msg);
+
+    if(msg.length() != 0){
+      pubMQTT("_Debug/Update_status", "starting update");
+      HTTP_OTA(msg);
+    }
+    else{
+      pubMQTT("_Debug/Update_status", "fail updating: missing url");
+    }
+  }
   }
 	else{
 		recibirMensaje(String(topic), mensaje);
@@ -118,6 +128,7 @@ void JMBaseMQTT::loopMQTT(){
           //Pub-Sub SYSTEM
           subMQTT("_Debug");
           pubMQTT("_Debug/Status", "Online");
+					pubMQTT("_Debug/Update_status", "OK");
           pubMQTT("_Debug/IP", String(WiFi.localIP().toString().c_str()));
           pubMQTT("_Debug/Signal", String(WiFi.RSSI()));
           pubMQTT("_Debug/Time", "Ready");
@@ -131,7 +142,7 @@ void JMBaseMQTT::loopMQTT(){
 					JMBase::setLED(false);
           timerMQTT = TiempoMQTT;
           Serial.println("Error to connect!");
-          Serial.println("[WiFi] Next reconnection in "+String(TiempoMQTT)+" seconds...");
+          Serial.println("[MQTT] Next reconnection in "+String(TiempoMQTT)+" seconds...");
         }
       }
     }
@@ -155,5 +166,37 @@ void JMBaseMQTT::loopMQTT(){
 				Serial.println("[WiFi] Next reconnection in "+String(TiempoMQTT)+" seconds...");
       }
     }
+  }
+}
+/******************************************** HTTP OTA ********************************************************/
+
+void JMBaseMQTT::HTTP_OTA(const String& url) {
+  pubMQTT("_Debug/Update_status", "downloading...");
+	
+	delay(1000);
+
+  // Opcional: tiempo de espera
+  httpUpdate.rebootOnUpdate(true); // si OK, reinicia automáticamente
+  httpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+
+  // Si tu HA es HTTP y no HTTPS, no necesitas certificados.
+  // Si usases HTTPS, haría falta WiFiClientSecure + cert.
+
+  t_httpUpdate_return ret = httpUpdate.update(wifiClient, url);
+
+  switch (ret) {
+    case HTTP_UPDATE_FAILED:
+      pubMQTT("_Debug/Update_status", String("fail: ") + httpUpdate.getLastErrorString());
+      break;
+
+    case HTTP_UPDATE_NO_UPDATES:
+      pubMQTT("_Debug/Update_status", "no_update");
+      break;
+
+    case HTTP_UPDATE_OK:
+      // Si rebootOnUpdate(true), normalmente no llega aquí (reinicia).
+      pubMQTT("_Debug/Update_status", "ok");
+
+      break;
   }
 }
