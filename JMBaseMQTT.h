@@ -19,7 +19,6 @@
 	namespace JMBaseMQTT {
 		extern String user_MQTT;
 		extern String pass_MQTT;
-		extern String server_MQTT;
 		extern String Topic;
 		extern String TopicSub;
 		
@@ -30,13 +29,14 @@
 		void callBack(char* topic, byte* payload, unsigned int length);
 		
 		// --- tus funciones ya existentes ---
-		void setupMQTT(String user_mqtt, String pass_mqtt, String server_mqtt, String topic);
+		void setupMQTT(String user_mqtt, String pass_mqtt, String topic);
 		void setCallBacks(void (*callbackConectar)(), void (*callbackMensaje)(const String&, const String&));
 		void pubMQTT(String topic, String mensaje);
 		void subMQTT(String topic);
+		void subMQTT_ext(String topic);
 		void loopTimerWiFi();
 		void loopMQTT();
-		void HTTP_OTA(const String& url);
+		void HTTP_OTA();
 	}
 
 #endif
