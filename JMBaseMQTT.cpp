@@ -32,7 +32,6 @@ PubSubClient mqttclient(wifiClient);
 
 String JMBaseMQTT::user_MQTT;
 String JMBaseMQTT::pass_MQTT;
-String JMBaseMQTT::server_MQTT;
 String JMBaseMQTT::Topic;
 String JMBaseMQTT::TopicSub;
 	
@@ -54,6 +53,11 @@ void JMBaseMQTT::subMQTT(String topic){
   //topic.toCharArray(top, 50);
   mqttclient.subscribe((Topic + "/" + topic).c_str());
 }
+void JMBaseMQTT::subMQTT_ext(String topic){
+  //char top[50];
+  //topic.toCharArray(top, 50);
+  mqttclient.subscribe((topic).c_str());
+}
 
 void JMBaseMQTT::callBack(char* topic, byte* payload, unsigned int length) {
 	String mensaje="";
@@ -69,31 +73,21 @@ void JMBaseMQTT::callBack(char* topic, byte* payload, unsigned int length) {
     else if(mensaje == "RESET"){
       ESP.restart();
     }
-		else if(mensaje.startsWith("UPDATE:")){
-    String msg = mensaje.substring(mensaje.indexOf(":")+1, mensaje.length());
-    Serial.println(String("[HTTP_OTA] ") + topic + " => " + msg);
-
-    if(msg.length() != 0){
-      pubMQTT("_Debug/Update_status", "starting update");
-      HTTP_OTA(msg);
-    }
-    else{
-      pubMQTT("_Debug/Update_status", "fail updating: missing url");
-    }
-  }
+		else if(mensaje == "UPDATE"){
+			HTTP_OTA();
+		}
   }
 	else{
 		recibirMensaje(String(topic), mensaje);
 	}
 }
 
-void JMBaseMQTT::setupMQTT(String user_mqtt, String pass_mqtt, String server_mqtt, String topic){
+void JMBaseMQTT::setupMQTT(String user_mqtt, String pass_mqtt, String topic){
 	
 	user_MQTT = user_mqtt;
 	pass_MQTT = pass_mqtt;
-	server_MQTT = server_mqtt;
 	
-	mqttclient.setServer(server_MQTT.c_str(), 1883);
+	mqttclient.setServer(JMBaseWiFi::MQTTServer, 1883);
 	
 	Topic = topic;
 	TopicSub = topic + "/_Set";
@@ -122,7 +116,7 @@ void JMBaseMQTT::loopMQTT(){
         Serial.print("[MQTT] Connecting...");
         if(mqttclient.connect(JMBase::HostName.c_str(), user_MQTT.c_str(), pass_MQTT.c_str(), String(Topic + "/_Debug/Status").c_str(), 2, true, "Offline")){
 					Serial.print("connected to ");
-					Serial.println(server_MQTT);
+					Serial.println(JMBaseWiFi::MQTTServer);
           JMBase::setLED(true);
 					timerMQTT = 0;
           //Pub-Sub SYSTEM
@@ -170,8 +164,11 @@ void JMBaseMQTT::loopMQTT(){
 }
 /******************************************** HTTP OTA ********************************************************/
 
-void JMBaseMQTT::HTTP_OTA(const String& url) {
+void JMBaseMQTT::HTTP_OTA() {
+	
+	Serial.println(String("[HTTP_OTA] => Starting update"));
   pubMQTT("_Debug/Update_status", "downloading...");
+	Serial.println(String("[HTTP_OTA] => downloading..."));
 	
 	delay(1000);
 
@@ -181,6 +178,12 @@ void JMBaseMQTT::HTTP_OTA(const String& url) {
 
   // Si tu HA es HTTP y no HTTPS, no necesitas certificados.
   // Si usases HTTPS, haría falta WiFiClientSecure + cert.
+	
+	String url = "http://";
+	url.concat(JMBaseWiFi::HAServer.toString());
+	url.concat(":8123/local/firmware/0.bin");
+	
+	Serial.println(url);
 
   t_httpUpdate_return ret = httpUpdate.update(wifiClient, url);
 

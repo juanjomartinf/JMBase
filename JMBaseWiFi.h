@@ -18,9 +18,13 @@
 #endif	
 
 	namespace JMBaseWiFi {
+		extern IPAddress MQTTServer;
+		extern IPAddress HAServer;
+		
 		void addNetwork(const char* ssid, const char* password);
 		void setupWiFi();
 		void reconnect();
+		void calcularServers();
 	}
 	
 #endif

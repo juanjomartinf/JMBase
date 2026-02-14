@@ -9,6 +9,9 @@ ESP8266WiFiMulti wifiMulti;
   #error "JMBaseWiFi solo es compatible con ESP32 o ESP8266"
 #endif
 
+IPAddress JMBaseWiFi::MQTTServer;
+IPAddress JMBaseWiFi::HAServer;
+
 
 void JMBaseWiFi::addNetwork(const char* ssid, const char* password) {
 	wifiMulti.addAP(ssid, password);
@@ -30,6 +33,11 @@ void JMBaseWiFi::setupWiFi(){
     Serial.println(WiFi.SSID());
     Serial.print("[WiFi] IP address: ");
     Serial.println(WiFi.localIP());
+		calcularServers();
+		Serial.print("[WiFi] IP MQTTServer: ");
+    Serial.println(MQTTServer.toString());
+		Serial.print("[WiFi] IP HAServer: ");
+    Serial.println(HAServer.toString());
   }
   else{
     Serial.println("error to connect!");
@@ -47,4 +55,10 @@ void JMBaseWiFi::reconnect(){
 	WiFi.mode(WIFI_STA);
 	wifiMulti.run();
 	delay(100);
+}
+
+void JMBaseWiFi::calcularServers(){
+	IPAddress gw = WiFi.gatewayIP();                // Ej: 192.168.X.1
+  MQTTServer = IPAddress(gw[0], gw[1], gw[2], 2);  // -> 192.168.X.2
+	HAServer = IPAddress(gw[0], gw[1], gw[2], 5);  // -> 192.168.X.5
 }
