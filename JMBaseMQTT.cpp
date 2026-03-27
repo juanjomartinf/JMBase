@@ -3,7 +3,7 @@
 
 /******************************************** Timer MQTT **************************************************/
 #define TiempoMQTT        10  
-#define TiempoSignal       60
+#define TiempoSignal      60
 
 unsigned long int TIEMPO_WIFI = 0;
 
