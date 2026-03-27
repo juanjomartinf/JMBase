@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include "JMBaseMQTT.h"
-#include "JMBaseOTA.h"
 #include "JMBaseWiFi.h"
 
 namespace JMBase {
