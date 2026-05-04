@@ -154,7 +154,7 @@ void JMBaseMQTT::loopMQTT(){
 				Serial.print("[WiFi] IP address: ");
 				Serial.println(WiFi.localIP());
       }
-      else{
+	  else{
         timerMQTT = TiempoMQTT;
 				Serial.println("Error to connect!");
 				Serial.println("[WiFi] Next reconnection in "+String(TiempoMQTT)+" seconds...");
@@ -166,40 +166,64 @@ void JMBaseMQTT::loopMQTT(){
 
 void JMBaseMQTT::HTTP_OTA() {
 	
-	Serial.println(String("[HTTP_OTA] => Starting update"));
+  Serial.println(String("[HTTP_OTA] => Starting update"));
   pubMQTT("_Debug/Update_status", "downloading...");
-	Serial.println(String("[HTTP_OTA] => downloading..."));
+  Serial.println(String("[HTTP_OTA] => downloading..."));
 	
-	delay(1000);
-
-  // Opcional: tiempo de espera
-  httpUpdate.rebootOnUpdate(true); // si OK, reinicia automáticamente
-  httpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-
-  // Si tu HA es HTTP y no HTTPS, no necesitas certificados.
-  // Si usases HTTPS, haría falta WiFiClientSecure + cert.
-	
+  delay(1000);
+  #if defined(ARDUINO_ARCH_ESP32)
+    // Opcional: tiempo de espera
+    httpUpdate.rebootOnUpdate(true); // si OK, reinicia automáticamente
+    httpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
 	String url = "http://";
 	url.concat(JMBaseWiFi::HAServer.toString());
 	url.concat(":8123/local/firmware/0.bin");
 	
 	Serial.println(url);
 
-  t_httpUpdate_return ret = httpUpdate.update(wifiClient, url);
-
-  switch (ret) {
-    case HTTP_UPDATE_FAILED:
-      pubMQTT("_Debug/Update_status", String("fail: ") + httpUpdate.getLastErrorString());
+	t_httpUpdate_return ret = httpUpdate.update(wifiClient, url);
+	
+	switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        pubMQTT("_Debug/Update_status", String("fail: ") + httpUpdate.getLastErrorString());
       break;
 
-    case HTTP_UPDATE_NO_UPDATES:
-      pubMQTT("_Debug/Update_status", "no_update");
+      case HTTP_UPDATE_NO_UPDATES:
+        pubMQTT("_Debug/Update_status", "no_update");
       break;
 
-    case HTTP_UPDATE_OK:
-      // Si rebootOnUpdate(true), normalmente no llega aquí (reinicia).
-      pubMQTT("_Debug/Update_status", "ok");
-
+      case HTTP_UPDATE_OK:
+        // Si rebootOnUpdate(true), normalmente no llega aquí (reinicia).
+        pubMQTT("_Debug/Update_status", "ok");
       break;
-  }
+	}
+	
+  #elif defined(ARDUINO_ARCH_ESP8266)
+    ESPhttpUpdate.rebootOnUpdate(true);
+    ESPhttpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+	String url = "http://";
+	url.concat(JMBaseWiFi::HAServer.toString());
+	url.concat(":8123/local/firmware/0.bin");
+	
+	Serial.println(url);	
+	
+	
+	t_httpUpdate_return ret = ESPhttpUpdate.update(wifiClient, url);
+	
+	switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        pubMQTT("_Debug/Update_status", String("fail: ") + ESPhttpUpdate.getLastErrorString());
+      break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+        pubMQTT("_Debug/Update_status", "no_update");
+      break;
+
+      case HTTP_UPDATE_OK:
+        // Si rebootOnUpdate(true), normalmente no llega aquí (reinicia).
+        pubMQTT("_Debug/Update_status", "ok");
+      break;
+	}
+
+  #endif
 }

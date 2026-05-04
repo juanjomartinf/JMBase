@@ -6,12 +6,12 @@
 
 // Selección automática de la librería WiFi correcta según la placa
 #if defined(ARDUINO_ARCH_ESP32)
-	#include <WiFi.h>
+  #include <WiFi.h>
   #include <WiFiMulti.h>
 	
 #elif defined(ARDUINO_ARCH_ESP8266)
   #include <ESP8266WiFi.h>
-	#include <ESP8266WiFiMulti.h>	
+  #include <ESP8266WiFiMulti.h>	
 	
 #else
   #error "JMBaseWiFi solo es compatible con ESP32 o ESP8266"
