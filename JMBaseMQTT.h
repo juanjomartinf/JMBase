@@ -35,6 +35,7 @@
 		void setupMQTT(String user_mqtt, String pass_mqtt, String topic);
 		void setCallBacks(void (*callbackConectar)(), void (*callbackMensaje)(const String&, const String&));
 		void pubMQTT(String topic, String mensaje);
+		void pubMQTT(String topic, String mensaje, bool retained);
 		void subMQTT(String topic);
 		void subMQTT_ext(String topic);
 		void loopTimerWiFi();

@@ -48,6 +48,15 @@ void JMBaseMQTT::pubMQTT(String topic, String mensaje){
   }
 }
 
+void JMBaseMQTT::pubMQTT(String topic, String mensaje, bool retained){
+  if(WiFi.status() == WL_CONNECTED && mqttclient.connected()){
+    //char top[50], msg[50];
+    //mensaje.toCharArray(msg, 50);
+    //topic.toCharArray(top, 50);
+    mqttclient.publish((Topic + "/" + topic).c_str(), mensaje.c_str(), retained);
+  }
+}
+
 void JMBaseMQTT::subMQTT(String topic){
   //char top[50];
   //topic.toCharArray(top, 50);
