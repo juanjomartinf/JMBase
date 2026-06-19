@@ -116,6 +116,10 @@ void JMBaseMQTT::loopMQTT(){
 			JMBase::setLED(true);
       if(timerSignal == 0){
         pubMQTT("_Debug/Signal", String(WiFi.RSSI()));
+		#if defined(ARDUINO_ARCH_ESP32)
+		float tempC = (temprature_sens_read() - 32) / 1.8;
+		pubMQTT("_Debug/Temperature", String(tempC));
+		#endif
         timerSignal = TiempoSignal;
       }
     }
