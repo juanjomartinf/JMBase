@@ -42,8 +42,9 @@ void JMBase::setHostName(String hn){
 
 void JMBase::beginSerial(unsigned long baud) {
   Serial.begin(baud);
-  while (!Serial);
-  Serial.println("\n\nJMBase iniciado correctamente");
+  if (Serial) {
+    Serial.println("\n\nJMBase iniciado correctamente");
+  }
 }
 
 void JMBase::setLED(bool est){ //cuando CONEXION es OK -> setLED(true)
