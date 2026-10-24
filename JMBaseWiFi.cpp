@@ -59,6 +59,6 @@ void JMBaseWiFi::reconnect(){
 
 void JMBaseWiFi::calcularServers(){
 	IPAddress gw = WiFi.gatewayIP();                // Ej: 192.168.X.1
-  MQTTServer = IPAddress(gw[0], gw[1], gw[2], 2);  // -> 192.168.X.2
-	HAServer = IPAddress(gw[0], gw[1], gw[2], 5);  // -> 192.168.X.5
+  MQTTServer = IPAddress(gw[0], gw[1], gw[2], 20);  // -> 192.168.X.20
+	HAServer = IPAddress(gw[0], gw[1], gw[2], 21);  // -> 192.168.X.21
 }
