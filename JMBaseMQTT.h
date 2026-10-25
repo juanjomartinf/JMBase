@@ -40,6 +40,11 @@
 		void subMQTT_ext(String topic);
 		void loopTimerWiFi();
 		void loopMQTT();
+		// Ruta HTTP dentro del HA local. Por defecto: /local/firmware/0.bin.
+		// Devuelve false y conserva la ruta anterior si el formato no es valido.
+		bool setFirmwarePath(const String &path);
+		String getFirmwarePath();
+		String getFirmwareURL();
 		void HTTP_OTA();
 	}
 

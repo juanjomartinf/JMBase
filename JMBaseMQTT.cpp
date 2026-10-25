@@ -30,6 +30,20 @@ void JMBaseMQTT::loopTimerWiFi(){
 WiFiClient wifiClient;
 PubSubClient mqttclient(wifiClient);
 
+static IPAddress configuredMQTTServer;
+static String firmwarePath = "/local/firmware/0.bin";
+
+// Se ejecuta tambien si WiFi se recupera fuera de reconnect().
+static void refreshServers() {
+  JMBaseWiFi::calcularServers();
+  if (configuredMQTTServer != JMBaseWiFi::MQTTServer) {
+    mqttclient.disconnect();
+    configuredMQTTServer = JMBaseWiFi::MQTTServer;
+    mqttclient.setServer(configuredMQTTServer, 1883);
+    timerMQTT = 0;
+  }
+}
+
 String JMBaseMQTT::user_MQTT;
 String JMBaseMQTT::pass_MQTT;
 String JMBaseMQTT::Topic;
@@ -97,6 +111,7 @@ void JMBaseMQTT::setupMQTT(String user_mqtt, String pass_mqtt, String topic){
 	pass_MQTT = pass_mqtt;
 	
 	mqttclient.setServer(JMBaseWiFi::MQTTServer, 1883);
+	configuredMQTTServer = JMBaseWiFi::MQTTServer;
 	
 	Topic = topic;
 	TopicSub = topic + "/_Set";
@@ -111,6 +126,7 @@ void JMBaseMQTT::loopMQTT(){
   loopTimerWiFi();
   
   if(WiFi.status() == WL_CONNECTED){                  // hay WIFI
+    refreshServers();
     if(mqttclient.connected()){                         // hay MQTT
       mqttclient.loop();
 			JMBase::setLED(true);
@@ -155,6 +171,7 @@ void JMBaseMQTT::loopMQTT(){
     }
   }
   else{                                               // NO hay WIFI
+		if (mqttclient.connected()) mqttclient.disconnect();
 		JMBase::setLED(false);
     if(timerMQTT == 0){
 			JMBaseWiFi::reconnect();
@@ -177,7 +194,33 @@ void JMBaseMQTT::loopMQTT(){
 }
 /******************************************** HTTP OTA ********************************************************/
 
+bool JMBaseMQTT::setFirmwarePath(const String &path) {
+  // Solo una ruta del HA local; no se aceptan URLs ni cabeceras inyectadas.
+  if (path.length() < 2 || path[0] != '/' || path[1] == '/') return false;
+  for (unsigned int i = 0; i < path.length(); ++i) {
+    const char c = path[i];
+    if ((unsigned char)c <= 32 || c == 127 || c == '\\' || c == '?' || c == '#') {
+      return false;
+    }
+  }
+  firmwarePath = path;
+  return true;
+}
+
+String JMBaseMQTT::getFirmwarePath() {
+  return firmwarePath;
+}
+
+String JMBaseMQTT::getFirmwareURL() {
+  if (WiFi.status() == WL_CONNECTED) JMBaseWiFi::calcularServers();
+  return String("http://") + JMBaseWiFi::HAServer.toString() + ":8123" + firmwarePath;
+}
+
 void JMBaseMQTT::HTTP_OTA() {
+	if (WiFi.status() != WL_CONNECTED) return;
+	// Un transporte independiente evita reutilizar la conexion TCP de MQTT.
+	WiFiClient updateClient;
+	String url = getFirmwareURL();
 	
   Serial.println(String("[HTTP_OTA] => Starting update"));
   pubMQTT("_Debug/Update_status", "downloading...");
@@ -188,13 +231,10 @@ void JMBaseMQTT::HTTP_OTA() {
     // Opcional: tiempo de espera
     httpUpdate.rebootOnUpdate(true); // si OK, reinicia automáticamente
     httpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-	String url = "http://";
-	url.concat(JMBaseWiFi::HAServer.toString());
-	url.concat(":8123/local/firmware/0.bin");
 	
 	Serial.println(url);
 
-	t_httpUpdate_return ret = httpUpdate.update(wifiClient, url);
+	t_httpUpdate_return ret = httpUpdate.update(updateClient, url);
 	
 	switch (ret) {
       case HTTP_UPDATE_FAILED:
@@ -214,14 +254,11 @@ void JMBaseMQTT::HTTP_OTA() {
   #elif defined(ARDUINO_ARCH_ESP8266)
     ESPhttpUpdate.rebootOnUpdate(true);
     ESPhttpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-	String url = "http://";
-	url.concat(JMBaseWiFi::HAServer.toString());
-	url.concat(":8123/local/firmware/0.bin");
 	
 	Serial.println(url);	
 	
 	
-	t_httpUpdate_return ret = ESPhttpUpdate.update(wifiClient, url);
+	t_httpUpdate_return ret = ESPhttpUpdate.update(updateClient, url);
 	
 	switch (ret) {
       case HTTP_UPDATE_FAILED:

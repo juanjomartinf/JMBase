@@ -55,6 +55,9 @@ void JMBaseWiFi::reconnect(){
 	WiFi.mode(WIFI_STA);
 	wifiMulti.run();
 	delay(100);
+	if (WiFi.status() == WL_CONNECTED) {
+		calcularServers();
+	}
 }
 
 void JMBaseWiFi::calcularServers(){
